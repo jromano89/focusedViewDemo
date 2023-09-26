@@ -129,7 +129,7 @@ function createEmbeddedUrl(responseData) {
         clientUserId: "12345",
         authenticationMethod: "SingleSignOn_SAML", // Purely informational
         returnUrl: returnUrl + "?eid=" + responseData.envelopeId,
-        frameAncestors: ["http://127.0.0.1:5500","https://apps-d.docusign.com"], // required for focused view
+        frameAncestors: ["http://127.0.0.1:5500","https://jromano89.github.io/focusedViewDemo","https://apps-d.docusign.com"], // required for focused view
         messageOrigins: ["https://apps-d.docusign.com"] // required for focused view
     }
     fetch(
