@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DocuSign Demo</title>
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="assets/custom.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css">
+</head>
+
+<!-- Update HTML with data from query parameters -->
+
+<body class="bg-light" onload="loadStatusPage()">
+
+    <!-- Placeholders  -->
+    <div id="spinner" class="spinner d-none"></div>
+
+    <!-- Header  -->
+    <nav class="navbar bg-white">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex flex-row">
+                <img src="assets/logo.png" class="px-3" height="35">
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid text-center">
+        <h2 class="p-4">Demo Dashboard</h2>
+    </div>
+
+    <div class="row p-2">
+        <div class="col"></div>
+        <div class="col-6">
+            <ul class="list-group">
+                <li class="list-group-item"><b>Envelope ID:</b>
+                    <div id="envId"></div>
+                </li>
+                <li href="#" onclick="getStatus();return false;"
+                    class="list-group-item list-group-item-action"><b>Callback Event:</b>
+                    <div class="link-primary" id="envStatus"></div>
+                </li>
+            </ul>
+        </div>
+        <div class="col"></div>
+    </div>
+    <div class="row px-2 py-4">
+        <div class="col-3"></div>
+        <div class="col-5">
+            <select id="docType" class="form-select" required>
+                <option value="1">Document Only</option>
+                <option value="certificate">Certificate of Completion</option>
+                <option value="combined">Combined Documents</option>
+            </select>
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-primary" onclick="getPDF()">Get Document</button>
+        </div>
+        <div class="col"></div>
+    </div>
+    <div class="row p-4">
+        <div class="col-2 mx-auto">
+            <button type="button" class="btn btn-outline-primary" onclick="restartDemo()">Restart Demo</button>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Documents Modal -->
+    <div class="modal" id="docModal">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal body with iFrame -->
+                <div class="modal-body">
+                    <table id="statusTable" class="table table-striped d-none">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">First</th>
+                                <th scope="col">Last</th>
+                                <th scope="col">Handle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td>Jacob</td>
+                                <td>Thornton</td>
+                                <td>@fat</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3</th>
+                                <td>Larry</td>
+                                <td>the Bird</td>
+                                <td>@twitter</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <iframe id="myFrame" width="100%" height="500px"></iframe>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Modal -->
+    <div class="modal" id="eventModal">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <table id="myTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Time</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Action</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Footer -->
+    <div class="footer">
+        <div class="text-center mt-1">
+            <small>
+                &#9400;
+                <script>document.write(new Date().getFullYear());</script> Solution Architecture
+            </small>
+        </div>
+    </div>
+
+    <!-- JS imports -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
+    <script src="assets/main.js"></script>
+    <script src="assets/auth.js"></script>
+
+</body>
+
+</html>

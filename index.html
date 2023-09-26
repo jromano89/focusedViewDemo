@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DocuSign Demo</title>
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="assets/custom.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+
+<body class="bg-light">
+
+    <!-- Header  -->
+    <nav class="navbar bg-white">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex flex-row">
+                <img src="assets/logo.png" class="px-3" height="35">
+            </a>
+        </div>
+    </nav>
+
+    <!-- Placeholder for loading animation  -->
+    <div id="spinner" class="spinner d-none"></div>
+
+    <!-- Main Container -->
+    <!-- https://getbootstrap.com/docs/5.2/layout/containers -->
+    <div class="container-fluid p-3 mb-5">
+
+        <!-- Input Form -->
+        <form id="form" onsubmit="return submitForm();">
+            <!-- Submit function -->
+            <div class="accordion" id="accordionExample">
+
+                <!-- Form Section 1 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button text-custom fw-bold" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">DocuSign
+                            eSignature API Demo
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                        data-bs-parent="#accordionExample">
+                        <div class="accordion-body row g-3">
+
+                            <div class="form-text pt-3">Sample Web Form Input</div>
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" value="Jerrod Romano" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" value="jerrodromano@mailinator.com"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Sample Input 1</label>
+                                <input type="text" class="form-control" id="input1">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Sample Input 2</label>
+                                <input type="text" class="form-control" id="input2">
+                            </div>
+                            <div class="form-text pt-3">Demo Configuration</div>
+                            <div class="col-md-6">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" checked type="radio" name="deliveryOptions"
+                                        id="embedded" value="embedded"
+                                        onclick="document.getElementById('submitButton').innerHTML = 'Sign Now';">
+                                    <label class="form-check-label" for="embedded">Self Service</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="deliveryOptions"
+                                        id="emailDelivery" value="email"
+                                        onclick="document.getElementById('submitButton').innerHTML = 'Send Agreement for eSignature';">
+                                    <label class="form-check-label" for="email">Remote Delivery</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 text-center pt-2">
+                                <button type="submit" class="btn btn-primary" id="submitButton" disabled>Sign
+                                    Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="signModal">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal body with iFrame -->
+                <div class="modal-body">
+                    <iframe id="myFrame" width="100%" height="550px"></iframe>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Focused View Placeholder -->
+    <div id="agreement"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="text-center mt-1">
+            <small>
+                &#9400;
+                <script>document.write(new Date().getFullYear());</script> Solution Architecture
+            </small>
+        </div>
+    </div>
+
+    <!-- JS Imports -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+    <script src="https://docucdn-a.akamaihd.net/demo/1ds/libs/@embedded-js/core/latest/dist/bundle.js"></script>
+    <script src="assets/main.js"></script>
+    <script src="assets/auth.js"></script>
+
+</body>
+
+</html>
