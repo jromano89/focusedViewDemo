@@ -179,8 +179,11 @@ function initiateFocusedView(signingUrl) {
                 style: {
                     branding: {
                         primaryButton: {
-                            backgroundColor: '#1f55a0',
-                            color: '#fff',
+                            backgroundColor: '#0D6EFD',
+                            color: '#FFF',
+                        },
+                        signingNavigationButton: {
+                            position: 'bottom-center'
                         }
                     }
                 }
