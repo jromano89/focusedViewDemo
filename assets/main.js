@@ -20,8 +20,7 @@ let envelopeId;
 // Triggered when submit button is clicked
 function submitForm(evt) {
     document.getElementById("submitButton").disabled = true; // Prevent multiple clicks
-    document.getElementById("spinner").classList.remove("d-none");
-    let embeddedBool = document.getElementById("embedded").checked;
+    let embeddedBool = document.getElementById("focused").checked;
     createEnvelope(embeddedBool);
     return false; // Prevent default html form submission (run the function above instead)
 }
@@ -131,7 +130,7 @@ function createEmbeddedUrl(responseData) {
         clientUserId: "12345",
         authenticationMethod: "SingleSignOn_SAML", // Purely informational
         returnUrl: returnUrl + "?eid=" + responseData.envelopeId,
-        frameAncestors: ["https://jromano89.github.io/focusedViewDemo","https://apps-d.docusign.com"], // required for focused view
+        frameAncestors: ["https://jromano89.github.io/focusedViewDemo", "https://apps-d.docusign.com"], // required for focused view
         messageOrigins: ["https://apps-d.docusign.com"] // required for focused view
     }
     fetch(
@@ -177,13 +176,14 @@ function initiateFocusedView(signingUrl) {
                     },
 
                     signingNavigationButton: {
-                        finishText: 'Custom Button Text',
+                        finishText: 'Test 123',
                         position: 'bottom-left'
                     }
                 }
             });
 
             signing.on('ready', (event) => {
+                document.getElementById("progressBar").style.width = "66%";
                 console.log('UI is rendered');
             });
 
@@ -192,7 +192,6 @@ function initiateFocusedView(signingUrl) {
                 window.top.location.replace(redirectUrl + "?eid=" + envelopeId + "&event=" + event.sessionEndType);
                 console.log('sessionend', event);
             });
-            document.getElementById("spinner").classList.add("d-none");
             document.getElementById("form").classList.add("d-none");
             signing.mount('#agreement');
         })
