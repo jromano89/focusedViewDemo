@@ -68,14 +68,22 @@
                             <div class="form-text pt-3">Demo Configuration</div>
                             <div class="col-md-6">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" checked type="radio" name="deliveryOptions"
-                                        id="focused" value="focused">
-                                    <label class="form-check-label" for="embedded">Focused View</label>
+                                    <input class="form-check-input" type="radio" name="deliveryOptions"
+                                        id="embedded" value="embedded" checked
+                                        onclick="document.getElementById('submitButton').innerHTML = 'Sign Now';">
+                                    <label class="form-check-label" for="embedded">Embedded Signing</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="deliveryOptions" id="standard"
-                                        value="standard">
-                                    <label class="form-check-label" for="email">Standard</label>
+                                    <input class="form-check-input" type="radio" name="deliveryOptions"
+                                        id="remote" value="remote"
+                                        onclick="document.getElementById('submitButton').innerHTML = 'Send Agreement for eSignature';">
+                                    <label class="form-check-label" for="email">Email Delivery</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="deliveryOptions"
+                                        id="focused" value="focused"
+                                        onclick="document.getElementById('submitButton').innerHTML = 'Sign Now';">
+                                    <label class="form-check-label" for="focused">Focused View</label>
                                 </div>
                             </div>
 

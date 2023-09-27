@@ -20,7 +20,7 @@ let envelopeId;
 // Triggered when submit button is clicked
 function submitForm(evt) {
     document.getElementById("submitButton").disabled = true; // Prevent multiple clicks
-    let embeddedBool = document.getElementById("focused").checked;
+    let embeddedBool = !document.getElementById("remote").checked;
     createEnvelope(embeddedBool);
     return false; // Prevent default html form submission (run the function above instead)
 }
@@ -59,9 +59,10 @@ async function createEnvelope(embeddedBool) {
                                 tabLabel: "FieldA",
                                 value: document.getElementById("input1").value,
                                 anchorString: "AutoplaceFieldA",
-                                locked: "false",
+                                locked: "true",
                                 required: "false",
                                 fontSize: "size11",
+                                anchorXOffset: "-6",
                                 anchorYOffset: "-6",
                                 width: "150"
                             },
@@ -72,6 +73,7 @@ async function createEnvelope(embeddedBool) {
                                 locked: "true",
                                 required: "false",
                                 fontSize: "size11",
+                                anchorXOffset: "-6",
                                 anchorYOffset: "-6",
                                 width: "150",
                             }
@@ -121,7 +123,7 @@ async function createEnvelope(embeddedBool) {
 
 // API call for generating embedded signing view
 function createEmbeddedUrl(responseData) {
-    let returnUrl = new URL("redirect.html", currentUrl).href; // Will trigger redirect() on load
+    let returnUrl = new URL("redirect.html", currentUrl).href; // Used to break out of iframe
 
     let requestBody = {
         userName: document.getElementById("name").value, // Must all match the previous request
@@ -129,9 +131,9 @@ function createEmbeddedUrl(responseData) {
         roleName: "Signer",
         clientUserId: "12345",
         authenticationMethod: "SingleSignOn_SAML", // Purely informational
-        returnUrl: returnUrl + "?eid=" + responseData.envelopeId,
-        frameAncestors: ["https://jromano89.github.io/focusedViewDemo", "https://apps-d.docusign.com"], // required for focused view
-        messageOrigins: ["https://apps-d.docusign.com"] // required for focused view
+        returnUrl: returnUrl + "?eid=" + responseData.envelopeId, // Ignored by vocused view
+        frameAncestors: ["https://jromano89.github.io/focusedViewDemo", "https://apps-d.docusign.com"], // Required for focused view
+        messageOrigins: ["https://apps-d.docusign.com"] // Required for focused view
     }
     fetch(
         // Create Recipient View Endpoint
@@ -149,9 +151,16 @@ function createEmbeddedUrl(responseData) {
             } else
                 return response.json();
         })
-        // Load iframe or redirect with embedded signing URL
+        // Load iframe or focused viewwith embedded signing URL
         .then(function (data) {
-            initiateFocusedView(data.url);
+            if (document.getElementById("focused").checked) {
+                initiateFocusedView(data.url);
+            } else {
+                document.getElementById("myFrame").setAttribute("src", data.url);
+                let signingSession = new bootstrap.Modal(document.getElementById('signModal'));
+                signingSession.show();
+            }
+
         })
         .catch(function (error) {
             alert(error);
@@ -170,29 +179,23 @@ function initiateFocusedView(signingUrl) {
                 style: {
                     branding: {
                         primaryButton: {
-                            backgroundColor: '#333',
+                            backgroundColor: '#1f55a0',
                             color: '#fff',
                         }
-                    },
-
-                    signingNavigationButton: {
-                        finishText: 'Test 123',
-                        position: 'bottom-left'
                     }
                 }
             });
 
             signing.on('ready', (event) => {
                 document.getElementById("progressBar").style.width = "66%";
-                console.log('UI is rendered');
+                document.getElementById("form").classList.add("d-none");
             });
 
             signing.on('sessionEnd', (event) => {
                 let redirectUrl = new URL("status.html", currentUrl).href;
                 window.top.location.replace(redirectUrl + "?eid=" + envelopeId + "&event=" + event.sessionEndType);
-                console.log('sessionend', event);
             });
-            document.getElementById("form").classList.add("d-none");
+
             signing.mount('#agreement');
         })
         .catch((error) => {
