@@ -15,7 +15,7 @@ const urlParams = new URLSearchParams(window.location.search); // Used to read U
 const currentUrl = window.location.href;
 const currentTime = Date.now();
 let requestHeader;
-let envelopeID;
+let envelopeId;
 
 // Triggered when submit button is clicked
 function submitForm(evt) {
