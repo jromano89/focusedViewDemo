@@ -20,6 +20,7 @@ let envelopeId;
 // Triggered when submit button is clicked
 function submitForm(evt) {
     document.getElementById("submitButton").disabled = true; // Prevent multiple clicks
+    document.getElementById("spinner").classList.remove("d-none");
     let embeddedBool = !document.getElementById("remote").checked;
     createEnvelope(embeddedBool);
     return false; // Prevent default html form submission (run the function above instead)
@@ -181,9 +182,6 @@ function initiateFocusedView(signingUrl) {
                         primaryButton: {
                             backgroundColor: '#0D6EFD',
                             color: '#FFF',
-                        },
-                        signingNavigationButton: {
-                            position: 'bottom-center'
                         }
                     }
                 }

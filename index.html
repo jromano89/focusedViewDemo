@@ -70,26 +70,28 @@
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="deliveryOptions"
                                         id="embedded" value="embedded" checked
-                                        onclick="document.getElementById('submitButton').innerHTML = 'Sign Now';">
+                                        onclick="document.getElementById('submitText').innerHTML = 'Sign Now';">
                                     <label class="form-check-label" for="embedded">Embedded Signing</label>
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="deliveryOptions"
                                         id="remote" value="remote"
-                                        onclick="document.getElementById('submitButton').innerHTML = 'Send Agreement for eSignature';">
+                                        onclick="document.getElementById('submitText').innerHTML = 'Send Agreement for eSignature';">
                                     <label class="form-check-label" for="email">Email Delivery</label>
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="deliveryOptions"
                                         id="focused" value="focused"
-                                        onclick="document.getElementById('submitButton').innerHTML = 'Sign Now';">
+                                        onclick="document.getElementById('submitText').innerHTML = 'Sign Now';">
                                     <label class="form-check-label" for="focused">Focused View</label>
                                 </div>
                             </div>
 
                             <div class="col-12 text-center pt-2">
-                                <button type="submit" class="btn btn-primary" id="submitButton" disabled>Sign
-                                    Now</button>
+                                <button type="submit" class="btn btn-primary" id="submitButton" disabled>
+                                    <span class="spinner-border spinner-border-sm d-none " role="status" id="spinner"></span>
+                                    <span class="sr-only" id="submitText">Sign Now</span>
+                                </button>
                             </div>
                         </div>
                     </div>
