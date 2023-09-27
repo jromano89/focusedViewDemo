@@ -15,6 +15,7 @@ const urlParams = new URLSearchParams(window.location.search); // Used to read U
 const currentUrl = window.location.href;
 const currentTime = Date.now();
 let requestHeader;
+let envelopeID;
 
 // Triggered when submit button is clicked
 function submitForm(evt) {
@@ -110,6 +111,7 @@ async function createEnvelope(embeddedBool) {
                 createEmbeddedUrl(data);
             } else {
                 let redirectUrl = new URL("status.html", currentUrl).href;
+                envelopeId = data.envelopeId
                 window.top.location.replace(redirectUrl + "?eid=" + data.envelopeId + "&event=" + data.status);
             }
         })
@@ -188,6 +190,8 @@ function initiateFocusedView(signingUrl) {
             });
 
             signing.on('sessionEnd', (event) => {
+                let redirectUrl = new URL("status.html", currentUrl).href;
+                window.top.location.replace(redirectUrl + "?eid=" + envelopeId + "&event=" + event.sessionEndType);
                 console.log('sessionend', event);
             });
             
