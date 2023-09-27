@@ -129,7 +129,7 @@ function createEmbeddedUrl(responseData) {
         clientUserId: "12345",
         authenticationMethod: "SingleSignOn_SAML", // Purely informational
         returnUrl: returnUrl + "?eid=" + responseData.envelopeId,
-        frameAncestors: ["http://127.0.0.1:5500","https://jromano89.github.io/focusedViewDemo","https://apps-d.docusign.com"], // required for focused view
+        frameAncestors: ["https://jromano89.github.io/focusedViewDemo","https://apps-d.docusign.com"], // required for focused view
         messageOrigins: ["https://apps-d.docusign.com"] // required for focused view
     }
     fetch(
@@ -182,17 +182,19 @@ function initiateFocusedView(signingUrl) {
             });
 
             signing.on('ready', (event) => {
+                document.getElementById("spinner").classList.add("d-none");
+                document.getElementById("form").classList.add("d-none");
                 console.log('UI is rendered');
             });
 
             signing.on('sessionEnd', (event) => {
                 console.log('sessionend', event);
             });
-
+            
             signing.mount('#agreement');
         })
-        .catch((ex) => {
-            console.log(ex);
+        .catch((error) => {
+            alert(error);
         });
 }
 
