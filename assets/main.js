@@ -184,8 +184,6 @@ function initiateFocusedView(signingUrl) {
             });
 
             signing.on('ready', (event) => {
-                document.getElementById("spinner").classList.add("d-none");
-                document.getElementById("form").classList.add("d-none");
                 console.log('UI is rendered');
             });
 
@@ -194,7 +192,8 @@ function initiateFocusedView(signingUrl) {
                 window.top.location.replace(redirectUrl + "?eid=" + envelopeId + "&event=" + event.sessionEndType);
                 console.log('sessionend', event);
             });
-            
+            document.getElementById("spinner").classList.add("d-none");
+            document.getElementById("form").classList.add("d-none");
             signing.mount('#agreement');
         })
         .catch((error) => {
