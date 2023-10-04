@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 
-<body class="bg-light">
+<body class="bg-light min-vh-100">
 
     <!-- Header  -->
     <nav class="navbar bg-white">
@@ -25,6 +25,7 @@
     <!-- Main Container -->
     <div class="container-fluid p-3 mb-3">
 
+        <!-- Progress Bar -->
         <div class="progress mb-3 w-75 mx-auto" role="progressbar" aria-valuenow="33" aria-valuemin="0"
             aria-valuemax="100">
             <div id="progressBar" class="progress-bar bg-primary" style="width: 33%"></div>
@@ -68,20 +69,20 @@
                             <div class="form-text pt-3">Demo Configuration</div>
                             <div class="col-md-6">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="deliveryOptions"
-                                        id="embedded" value="embedded" checked
+                                    <input class="form-check-input" type="radio" name="deliveryOptions" id="embedded"
+                                        value="embedded" checked
                                         onclick="document.getElementById('submitText').innerHTML = 'Sign Now';">
                                     <label class="form-check-label" for="embedded">Embedded Signing</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="deliveryOptions"
-                                        id="remote" value="remote"
+                                    <input class="form-check-input" type="radio" name="deliveryOptions" id="remote"
+                                        value="remote"
                                         onclick="document.getElementById('submitText').innerHTML = 'Send Agreement for eSignature';">
                                     <label class="form-check-label" for="email">Email Delivery</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="deliveryOptions"
-                                        id="focused" value="focused"
+                                    <input class="form-check-input" type="radio" name="deliveryOptions" id="focused"
+                                        value="focused"
                                         onclick="document.getElementById('submitText').innerHTML = 'Sign Now';">
                                     <label class="form-check-label" for="focused">Focused View</label>
                                 </div>
@@ -89,7 +90,8 @@
 
                             <div class="col-12 text-center pt-2">
                                 <button type="submit" class="btn btn-primary" id="submitButton" disabled>
-                                    <span class="spinner-border spinner-border-sm d-none " role="status" id="spinner"></span>
+                                    <span class="spinner-border spinner-border-sm d-none " role="status"
+                                        id="spinner"></span>
                                     <span class="sr-only" id="submitText">Sign Now</span>
                                 </button>
                             </div>
@@ -99,21 +101,19 @@
             </div>
         </form>
 
-        <!-- Placeholders  -->
-        <div id="spinner" class="spinner d-none"></div>
+    </div>
 
-        <div id="agreement" class="w-75 mx-auto" style="height:600px"></div>
+    <!-- Placeholders  -->
+    <div id="agreement"></div>
 
-        <div class="modal" id="signModal">
-            <div class="modal-dialog modal-xl modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <iframe id="myFrame" width="100%" height="550px"></iframe>
-                    </div>
+    <div class="modal" id="signModal">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <iframe id="myFrame" width="100%" height="550px"></iframe>
                 </div>
             </div>
         </div>
-
     </div>
 
     <!-- Footer -->

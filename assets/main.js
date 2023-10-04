@@ -170,6 +170,8 @@ function createEmbeddedUrl(responseData) {
 
 function initiateFocusedView(signingUrl) {
 
+    document.getElementById("form").classList.add("d-none");
+
     const apiKey = "2f7ff6b0-e9ac-47cc-b555-2e102fd22254";
 
     window.DocuSign.loadDocuSign(apiKey)
@@ -190,6 +192,7 @@ function initiateFocusedView(signingUrl) {
             signing.on('ready', (event) => {
                 document.getElementById("progressBar").style.width = "66%";
                 document.getElementById("form").classList.add("d-none");
+                document.getElementById("agreement").style.height = "600px";
             });
 
             signing.on('sessionEnd', (event) => {
