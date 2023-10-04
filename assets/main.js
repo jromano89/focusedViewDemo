@@ -170,6 +170,8 @@ function createEmbeddedUrl(responseData) {
 
 function initiateFocusedView(signingUrl) {
 
+
+
     const apiKey = "2f7ff6b0-e9ac-47cc-b555-2e102fd22254";
 
     window.DocuSign.loadDocuSign(apiKey)
@@ -189,7 +191,6 @@ function initiateFocusedView(signingUrl) {
 
             signing.on('ready', (event) => {
                 document.getElementById("progressBar").style.width = "66%";
-                document.getElementById("form").classList.add("d-none");
                 document.getElementById("agreement").style.height = "600px";
             });
 
@@ -198,6 +199,7 @@ function initiateFocusedView(signingUrl) {
                 window.top.location.replace(redirectUrl + "?eid=" + envelopeId + "&event=" + event.sessionEndType);
             });
 
+            document.getElementById("form").classList.add("d-none");
             signing.mount('#agreement');
         })
         .catch((error) => {
