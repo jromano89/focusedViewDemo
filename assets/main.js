@@ -150,7 +150,6 @@ function initiateFocusedView(signingUrl) {
     });
 
     signing.on('ready', (event) => {
-        document.getElementById("agreement").style.height = "600px";
         document.getElementById("progressBar").style.width = "66%";
     });
 
@@ -260,8 +259,8 @@ function loadStatusPage() {
     document.getElementById("envStatus").innerHTML = signerEvent;
 }
 
-// Initialize DocuSign.js
-document.addEventListener('DOMContentLoaded', function () {
+// Initialize DocuSign.js\
+function initDocuSignJS() {
     const apiKey = "2f7ff6b0-e9ac-47cc-b555-2e102fd22254";
 
     window.DocuSign.loadDocuSign(apiKey)
@@ -271,4 +270,4 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(function (error) {
             alert(error);
         });
-}, false);
+}

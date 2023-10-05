@@ -13,10 +13,7 @@
 
 <!-- Update HTML with data from query parameters -->
 
-<body class="bg-light" onload="loadStatusPage()">
-
-    <!-- Placeholders  -->
-    <div id="spinner" class="spinner d-none"></div>
+<body class="bg-light d-flex flex-column vh-100" onload="loadStatusPage()">
 
     <!-- Header  -->
     <nav class="navbar bg-white">
@@ -27,51 +24,53 @@
         </div>
     </nav>
 
-    <div class="progress my-3 w-75 mx-auto" role="progressbar" aria-valuenow="100" aria-valuemin="0"
-    aria-valuemax="100">
-    <div class="progress-bar bg-success w-100"></div>
-</div>
+    <!-- Content Container -->
+    <div class="container-fluid d-flex flex-column flex-grow-1 p-3 mb-3">
 
-    <!-- Main Container -->
-    <div class="container-fluid text-center">
-        <h2 class="p-4">Demo Dashboard</h2>
-    </div>
+        <!-- Progress Bar -->
+        <div class="progress my-3 w-75 mx-auto" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+            aria-valuemax="100">
+            <div class="progress-bar bg-success w-100"></div>
+        </div>
 
-    <div class="row p-2">
-        <div class="col"></div>
-        <div class="col-6">
-            <ul class="list-group">
-                <li class="list-group-item"><b>Envelope ID:</b>
-                    <div id="envId"></div>
-                </li>
-                <li href="#" onclick="getStatus();return false;"
-                    class="list-group-item list-group-item-action"><b>Callback Event:</b>
-                    <div class="link-success" id="envStatus"></div>
-                </li>
-            </ul>
+        <div class="text-center">
+            <h2 class="p-4">Demo Dashboard</h2>
         </div>
-        <div class="col"></div>
-    </div>
-    <div class="row px-2 py-4">
-        <div class="col-3"></div>
-        <div class="col-5">
-            <select id="docType" class="form-select" required>
-                <option value="1">Document Only</option>
-                <option value="certificate">Certificate of Completion</option>
-                <option value="combined">Combined Documents</option>
-            </select>
+
+        <div class="row p-2">
+            <div class="col"></div>
+            <div class="col-6">
+                <ul class="list-group">
+                    <li class="list-group-item"><b>Envelope ID:</b>
+                        <div id="envId"></div>
+                    </li>
+                    <li href="#" onclick="getStatus();return false;" class="list-group-item list-group-item-action">
+                        <b>Callback Event:</b>
+                        <div class="link-success" id="envStatus"></div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col"></div>
         </div>
-        <div class="col">
-            <button type="button" class="btn btn-success" onclick="getPDF()">Get Document</button>
+        <div class="row px-2 py-4">
+            <div class="col-3"></div>
+            <div class="col-5">
+                <select id="docType" class="form-select" required>
+                    <option value="1">Document Only</option>
+                    <option value="certificate">Certificate of Completion</option>
+                    <option value="combined">Combined Documents</option>
+                </select>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success" onclick="getPDF()">Get Document</button>
+            </div>
+            <div class="col"></div>
         </div>
-        <div class="col"></div>
-    </div>
-    <div class="row p-4">
-        <div class="col-2 mx-auto">
-            <button type="button" class="btn btn-outline-success" onclick="restartDemo()">Restart Demo</button>
+        <div class="row p-4">
+            <div class="col-2 mx-auto">
+                <button type="button" class="btn btn-outline-success" onclick="restartDemo()">Restart Demo</button>
+            </div>
         </div>
-    </div>
-    </div>
     </div>
 
     <!-- Documents Modal -->
@@ -145,6 +144,8 @@
             </div>
         </div>
     </div>
+
+
 
     <!-- Page Footer -->
     <div class="footer">
