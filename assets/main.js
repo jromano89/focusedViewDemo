@@ -150,8 +150,8 @@ function initiateFocusedView(signingUrl) {
     });
 
     signing.on('ready', (event) => {
+        document.getElementById("agreement").style.height = "600px";
         document.getElementById("progressBar").style.width = "66%";
-
     });
 
     signing.on('sessionEnd', (event) => {
