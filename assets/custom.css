@@ -1,11 +1,3 @@
-.bg-custom {
-    background-color: #1f55a0 !important;
-}
-  
-.text-custom {
-    color: #1f55a0 !important
-}
-
 body {
     /* Margin bottom must match footer height */
     margin-bottom: 2rem;

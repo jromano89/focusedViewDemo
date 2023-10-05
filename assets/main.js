@@ -16,6 +16,7 @@ const currentUrl = window.location.href;
 const currentTime = Date.now();
 let requestHeader;
 let envelopeId;
+let docusignJS;
 
 // Triggered when submit button is clicked
 function submitForm(evt) {
@@ -29,66 +30,29 @@ function submitForm(evt) {
 // API call for creating a DocuSign envelope
 async function createEnvelope(embeddedBool) {
 
-    // Read document file and convert to base64 
-    let docPath = "assets/SampleDoc.docx";
-    let demoDoc = await fileToBase64(docPath);
-    demoDoc = demoDoc.split(',')[1]; // Remove object type to get just the base64 string
-
-    // https://www.convertsimple.com/convert-json-to-javascript/
     let requestBody =
     {
-        emailSubject: "DocuSign API Demo",
-        documents: [
+        templateId: "9bdf260e-c577-461e-ab20-0202b1593c80",
+        templateRoles: [
             {
-                documentId: "1",
-                name: "Sample Doc",
-                documentBase64: demoDoc,
-                fileExtension: "docx"
+                roleName: "Signer",
+                email: document.getElementById("email").value,
+                name: document.getElementById("name").value,
+                // If a clientUserId value is defined, recipient will be embedded
+                ...(embeddedBool && { clientUserId: "12345" }),
+                tabs: {
+                    textTabs: [
+                        {
+                            tabLabel: "address",
+                            value: document.getElementById("input1").value
+                        }, {
+                            tabLabel: "amount",
+                            value: document.getElementById("input2").value,
+                        }
+                    ]
+                }
             }
         ],
-        recipients: {
-            signers: [
-                {
-                    recipientId: 1,
-                    email: document.getElementById("email").value,
-                    name: document.getElementById("name").value,
-                    // If a clientUserId value is defined, recipient will be embedded
-                    ...(embeddedBool && { clientUserId: "12345" }),
-                    tabs: {
-                        textTabs: [
-                            {
-                                tabLabel: "FieldA",
-                                value: document.getElementById("input1").value,
-                                anchorString: "AutoplaceFieldA",
-                                locked: "true",
-                                required: "false",
-                                fontSize: "size11",
-                                anchorXOffset: "-6",
-                                anchorYOffset: "-6",
-                                width: "150"
-                            },
-                            {
-                                tabLabel: "FieldB",
-                                value: document.getElementById("input2").value,
-                                anchorString: "AutoplaceFieldB",
-                                locked: "true",
-                                required: "false",
-                                fontSize: "size11",
-                                anchorXOffset: "-6",
-                                anchorYOffset: "-6",
-                                width: "150",
-                            }
-                        ],
-                        signHereTabs: [
-                            {
-                                tabLabel: "Signature",
-                                anchorString: "AutoplaceSignature"
-                            }
-                        ]
-                    }
-                }
-            ]
-        },
         status: "sent" // Setting status to "sent" will create and send envelope in one step
     }
     fetch(
@@ -133,8 +97,8 @@ function createEmbeddedUrl(responseData) {
         clientUserId: "12345",
         authenticationMethod: "SingleSignOn_SAML", // Purely informational
         returnUrl: returnUrl + "?eid=" + responseData.envelopeId, // Ignored by vocused view
-        frameAncestors: ["https://jromano89.github.io/focusedViewDemo", "https://apps-d.docusign.com"], // Required for focused view
-        messageOrigins: ["https://apps-d.docusign.com"] // Required for focused view
+        //     frameAncestors: ["https://jromano89.github.io/focusedViewDemo", "https://apps-d.docusign.com"], // Required for focused view
+        //     messageOrigins: ["https://apps-d.docusign.com"] // Required for focused view
     }
     fetch(
         // Create Recipient View Endpoint
@@ -152,13 +116,15 @@ function createEmbeddedUrl(responseData) {
             } else
                 return response.json();
         })
-        // Load iframe or focused viewwith embedded signing URL
+        // Load iframe or focused view with embedded signing URL
         .then(function (data) {
             if (document.getElementById("focused").checked) {
                 initiateFocusedView(data.url);
             } else {
                 document.getElementById("myFrame").setAttribute("src", data.url);
                 let signingSession = new bootstrap.Modal(document.getElementById('signModal'));
+                document.getElementById("submitButton").disabled = false;
+                document.getElementById("spinner").classList.add("d-none");
                 signingSession.show();
             }
 
@@ -170,41 +136,32 @@ function createEmbeddedUrl(responseData) {
 
 function initiateFocusedView(signingUrl) {
 
-
-
-    const apiKey = "2f7ff6b0-e9ac-47cc-b555-2e102fd22254";
-
-    window.DocuSign.loadDocuSign(apiKey)
-        .then((docusign) => {
-            const signing = docusign.signing({
-                url: signingUrl,
-                displayFormat: 'focused',
-                style: {
-                    branding: {
-                        primaryButton: {
-                            backgroundColor: '#0D6EFD',
-                            color: '#FFF',
-                        }
-                    }
+    const signing = docusignJS.signing({
+        url: signingUrl,
+        displayFormat: 'focused',
+        style: {
+            branding: {
+                primaryButton: {
+                    backgroundColor: '#198754',
+                    color: '#FFF',
                 }
-            });
+            }
+        }
+    });
 
-            signing.on('ready', (event) => {
-                document.getElementById("progressBar").style.width = "66%";
-                document.getElementById("agreement").style.height = "600px";
-            });
+    signing.on('ready', (event) => {
+        document.getElementById("progressBar").style.width = "66%";
 
-            signing.on('sessionEnd', (event) => {
-                let redirectUrl = new URL("status.html", currentUrl).href;
-                window.top.location.replace(redirectUrl + "?eid=" + envelopeId + "&event=" + event.sessionEndType);
-            });
+    });
 
-            document.getElementById("form").classList.add("d-none");
-            signing.mount('#agreement');
-        })
-        .catch((error) => {
-            alert(error);
-        });
+    signing.on('sessionEnd', (event) => {
+        let redirectUrl = new URL("status.html", currentUrl).href;
+        window.top.location.replace(redirectUrl + "?eid=" + envelopeId + "&event=" + event.sessionEndType);
+    });
+
+    document.getElementById("form").classList.add("d-none");
+    signing.mount('#agreement');
+
 }
 
 // Make API call to retrieve document or CoC
@@ -252,24 +209,6 @@ function getStatus() {
         });
 }
 
-
-/* Helper Functions */
-
-// Read file and convert to a base64 object
-async function fileToBase64(url) {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new Promise((onSuccess, onError) => {
-        try {
-            const reader = new FileReader();
-            reader.onload = function () { onSuccess(this.result) };
-            reader.readAsDataURL(blob);
-        } catch (e) {
-            onError(e);
-        }
-    });
-};
-
 // Create a table based on envelope status
 function createTable(events) {
     // Get table body
@@ -307,6 +246,12 @@ function redirect() {
     window.top.location.replace(redirectUrl + "?eid=" + envId + "&event=" + signerEvent);
 }
 
+// Load initial screen
+function restartDemo() {
+    const startUrl = new URL("index.html", currentUrl).href;
+    window.location.replace(startUrl);
+}
+
 // Initialize status page
 function loadStatusPage() {
     const envId = urlParams.get("eid");
@@ -315,8 +260,15 @@ function loadStatusPage() {
     document.getElementById("envStatus").innerHTML = signerEvent;
 }
 
-// Load initial screen
-function restartDemo() {
-    const startUrl = new URL("index.html", currentUrl).href;
-    window.location.replace(startUrl);
-}
+// Initialize DocuSign.js
+document.addEventListener('DOMContentLoaded', function () {
+    const apiKey = "2f7ff6b0-e9ac-47cc-b555-2e102fd22254";
+
+    window.DocuSign.loadDocuSign(apiKey)
+        .then((result) => {
+            docusignJS = result;
+        })
+        .catch(function (error) {
+            alert(error);
+        });
+}, false);
