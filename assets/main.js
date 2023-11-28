@@ -1,6 +1,6 @@
 /*  DocuSign Account Setup & Demo Config */
-const accountId = "9848525";
-const userId = "8957f2f6-2d43-442f-83fb-c2784d7a12d4";
+const accountId = "23202817";
+const userId = "f1d4d61f-3c3b-4087-b00d-a6e60bf01855";
 const scopes = "signature impersonation"; // https://developers.docusign.com/platform/auth/reference/scopes
 
 // API endpoints
@@ -32,7 +32,7 @@ async function createEnvelope(embeddedBool) {
 
     let requestBody =
     {
-        templateId: "9bdf260e-c577-461e-ab20-0202b1593c80",
+        templateId: "b496c58e-8fa4-44be-9948-b7323270624e",
         templateRoles: [
             {
                 roleName: "Signer",
@@ -53,6 +53,7 @@ async function createEnvelope(embeddedBool) {
                 }
             }
         ],
+        useDisclosure: document.getElementById("ersd").checked, // Override ERSD account default
         status: "sent" // Setting status to "sent" will create and send envelope in one step
     }
     fetch(
