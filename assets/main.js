@@ -30,27 +30,33 @@ function submitForm(evt) {
 // API call for creating a DocuSign envelope
 async function createEnvelope(embeddedBool) {
 
+    let c2a = document.getElementById("c2a").checked;
+
+    var templateId = (c2a) ? "d1af5c24-1172-4c5d-8665-aa609d78690e" : "b496c58e-8fa4-44be-9948-b7323270624e";
+
     let requestBody =
     {
-        templateId: "b496c58e-8fa4-44be-9948-b7323270624e",
+        templateId: templateId,
         templateRoles: [
             {
                 roleName: "Signer",
                 email: document.getElementById("email").value,
                 name: document.getElementById("name").value,
                 // If a clientUserId value is defined, recipient will be embedded
-                ...(embeddedBool && { clientUserId: "12345" }),
-                tabs: {
-                    textTabs: [
-                        {
-                            tabLabel: "address",
-                            value: document.getElementById("input1").value
-                        }, {
-                            tabLabel: "amount",
-                            value: document.getElementById("input2").value,
-                        }
-                    ]
-                }
+                ...(embeddedBool && { clientUserId: document.getElementById("email").value }),
+                ...(c2a && {
+                    tabs: {
+                        textTabs: [
+                            {
+                                tabLabel: "address",
+                                value: document.getElementById("input1").value
+                            }, {
+                                tabLabel: "amount",
+                                value: document.getElementById("input2").value,
+                            }
+                        ]
+                    }
+                })
             }
         ],
         useDisclosure: document.getElementById("ersd").checked, // Override ERSD account default
@@ -95,7 +101,7 @@ function createEmbeddedUrl(responseData) {
         userName: document.getElementById("name").value, // Must all match the previous request
         email: document.getElementById("email").value,
         roleName: "Signer",
-        clientUserId: "12345",
+        clientUserId: document.getElementById("email").value,
         authenticationMethod: "SingleSignOn_SAML", // Purely informational
         returnUrl: returnUrl + "?eid=" + responseData.envelopeId, // Ignored by vocused view
         frameAncestors: ["https://jromano89.github.io", "http://127.0.0.1:5500", "https://apps-d.docusign.com"], // Required for focused view
@@ -133,6 +139,33 @@ function createEmbeddedUrl(responseData) {
         .catch(function (error) {
             alert(error);
         });
+}
+
+function c2aHandler() {
+    let c2a = document.getElementById("c2a");
+
+    document.getElementById("input1").disabled = c2a.checked;
+    document.getElementById("input2").disabled = c2a.checked;
+}
+
+function deliveryHandler(evt) {
+
+    let c2a = document.getElementById("c2a");
+
+    if (evt == "focused") {
+        document.getElementById('submitText').innerHTML = "Sign Now";
+        c2a.disabled = false;
+    } else if (evt == "embedded") {
+        document.getElementById('submitText').innerHTML = "Sign Now";
+        if (c2a.checked) { c2a.click() }
+        c2a.disabled = true;
+    } else if (evt == "remote") {
+        document.getElementById('submitText').innerHTML = "Send Agreement for eSignature";
+        if (c2a.checked) { c2a.click() }
+        c2a.disabled = true;
+    }
+
+
 }
 
 function initiateFocusedView(signingUrl) {

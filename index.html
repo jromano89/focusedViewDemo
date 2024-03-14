@@ -67,33 +67,41 @@
                                 <input type="text" class="form-control" id="input2">
                             </div>
                             <div class="form-text pt-3">Demo Configuration</div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="deliveryOptions" id="focused"
                                         value="focused" checked
-                                        onclick="document.getElementById('submitText').innerHTML = 'Sign Now';">
+                                        onclick="deliveryHandler('focused')">
                                     <label class="form-check-label" for="focused">Embedded <span class="badge text-bg-success">Focused</span></label>
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="deliveryOptions" id="embedded"
                                         value="embedded"
-                                        onclick="document.getElementById('submitText').innerHTML = 'Sign Now';">
+                                        onclick="deliveryHandler('embedded')">
                                     <label class="form-check-label" for="embedded">Embedded <span class="badge text-bg-secondary">Standard</span>
                                     </label>
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="deliveryOptions" id="remote"
                                         value="remote"
-                                        onclick="document.getElementById('submitText').innerHTML = 'Send Agreement for eSignature';">
+                                        onclick="deliveryHandler('remote')">
                                     <label class="form-check-label" for="email">Email Delivery</label>
                                 </div>
                             </div>
 
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="ersd">
                                     <label class="form-check-label" for="ersd">
                                         Use ERSD
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="c2a" onchange="c2aHandler()">
+                                    <label class="form-check-label" for="c2a">
+                                        Click to Agree
                                     </label>
                                 </div>
                             </div>
@@ -125,16 +133,6 @@
             </div>
         </div>
 
-    </div>
-
-    <!-- Footer -->
-    <div class="footer">
-        <div class="text-center mt-1">
-            <small>
-                &#9400;
-                <script>document.write(new Date().getFullYear());</script> Solution Architecture
-            </small>
-        </div>
     </div>
 
     <!-- JS Imports -->
