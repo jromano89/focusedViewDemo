@@ -44,7 +44,7 @@ async function createEnvelope(embeddedBool) {
                 name: document.getElementById("name").value,
                 // If a clientUserId value is defined, recipient will be embedded
                 ...(embeddedBool && { clientUserId: document.getElementById("email").value }),
-                ...(c2a && {
+                ...(!c2a && {
                     tabs: {
                         textTabs: [
                             {
