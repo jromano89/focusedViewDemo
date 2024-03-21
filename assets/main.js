@@ -120,7 +120,7 @@ async function createEnvelope(embeddedBool) {
                 createEmbeddedUrl(data);
             } else {
                 let redirectUrl = new URL("status.html", currentUrl).href;
-                window.top.location.replace(redirectUrl + "?eid=" + data.envelopeId + "&event=" + data.status);
+                window.top.location.assign(redirectUrl + "?eid=" + data.envelopeId + "&event=" + data.status);
             }
         })
         .catch(function (error) {
@@ -137,8 +137,8 @@ function createEmbeddedUrl(responseData) {
         email: document.getElementById("email").value,
         roleName: "Signer",
         clientUserId: document.getElementById("email").value,
-        authenticationMethod: "SingleSignOn_SAML", // Purely informational
-        returnUrl: returnUrl + "?eid=" + responseData.envelopeId, // Ignored by vocused view
+        authenticationMethod: "SingleSignOn_SAML", // Purely for CoC
+        returnUrl: returnUrl + "?eid=" + responseData.envelopeId,
         frameAncestors: ["https://jromano89.github.io", "https://dsdemos.esigndemos.com", "http://127.0.0.1:5500", "https://apps-d.docusign.com"], // Required for focused view
         messageOrigins: ["https://apps-d.docusign.com"] // Required for focused view
     }
@@ -161,7 +161,9 @@ function createEmbeddedUrl(responseData) {
         // Load iframe or focused view with embedded signing URL
         .then(function (data) {
             if (document.getElementById("focused").checked) {
-                initiateFocusedView(data.url);
+                window.localStorage.setItem("SE-Demo-SigningUrl", data.url);
+                let redirectUrl = new URL("embed.html", currentUrl).href;
+                window.top.location.assign(redirectUrl + "?c2a=" + document.getElementById("c2a").checked);
             } else {
                 document.getElementById("myFrame").setAttribute("src", data.url);
                 let signingSession = new bootstrap.Modal(document.getElementById('signModal'));
@@ -193,38 +195,6 @@ function deliveryHandler(evt) {
         c2a.disabled = true;
     }
 
-
-}
-
-function initiateFocusedView(signingUrl) {
-
-    let c2a = document.getElementById("c2a").checked;
-
-    const signing = docusignJS.signing({
-        url: signingUrl,
-        displayFormat: 'focused',
-        style: {
-            branding: {
-                primaryButton: {
-                    backgroundColor: '#198754',
-                    color: '#FFF',
-                }
-            },
-            ...(c2a && { signingNavigationButton: { finishText: 'Click to Accept' } })
-        }
-    });
-
-    signing.on('ready', (event) => {
-        document.getElementById("progressBar").style.width = "66%";
-    });
-
-    signing.on('sessionEnd', (event) => {
-        let redirectUrl = new URL("status.html", currentUrl).href;
-        window.top.location.replace(redirectUrl + "?eid=" + envelopeId + "&event=" + event.sessionEndType);
-    });
-
-    document.getElementById("form").classList.add("d-none");
-    signing.mount('#agreement');
 
 }
 
@@ -313,7 +283,7 @@ function redirect() {
 // Load initial screen
 function restartDemo() {
     const startUrl = new URL("index.html", currentUrl).href;
-    window.location.replace(startUrl);
+    window.top.location.assign(startUrl);
 }
 
 // Initialize status page
@@ -345,8 +315,38 @@ function initDocuSignJS() {
     window.DocuSign.loadDocuSign(apiKey)
         .then((result) => {
             docusignJS = result;
+            initFocusedView();
         })
         .catch(function (error) {
             alert(error);
         });
+}
+
+function initFocusedView() {
+
+    const c2a = urlParams.get("c2a");
+    const signingUrl = localStorage.getItem("SE-Demo-SigningUrl");
+
+    const signing = docusignJS.signing({
+        url: signingUrl,
+        displayFormat: 'focused',
+        style: {
+            branding: {
+                primaryButton: {
+                    backgroundColor: '#198754',
+                    color: '#FFF',
+                }
+            },
+            ...(c2a && { signingNavigationButton: { finishText: 'Click to Accept' } })
+        }
+    });
+
+    signing.on('ready', (event) => {});
+
+    signing.on('sessionEnd', (event) => {
+        window.top.location.assign(event.returnUrl);
+    });
+
+    signing.mount('#agreement');
+
 }

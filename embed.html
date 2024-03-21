@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DocuSign Demo</title>
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+
+<body class="bg-light d-flex flex-column vh-100" onload="initDocuSignJS()">
+
+    <!-- Header  -->
+    <nav class="navbar bg-white">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex flex-row">
+                <img src="assets/logo.png" class="px-3" height="35">
+            </a>
+        </div>
+    </nav>
+
+    <!-- Content Container -->
+    <div class="container-fluid d-flex flex-column flex-grow-1 p-3 mb-3">
+
+        <!-- Progress Bar -->
+        <div class="progress mb-3 w-75 mx-auto" role="progressbar" aria-valuenow="66" aria-valuemin="0"
+            aria-valuemax="100">
+            <div id="progressBar" class="progress-bar bg-success" style="width: 66%"></div>
+        </div>
+
+        <!-- Placeholders  -->
+
+        <div id="agreement" class="col-12 col-lg-9 flex-grow-1 mx-auto mb-2"></div>
+
+    </div>
+
+    <!-- JS Imports -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+    <script src="https://js-d.docusign.com/bundle.js"></script>
+    <script src="assets/main.js?v4"></script>
+
+</body>
+
+</html>
