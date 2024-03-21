@@ -14,9 +14,7 @@ const gateway = "https://cors.jerrod.workers.dev?"; // Append actual endpoint af
 const urlParams = new URLSearchParams(window.location.search); // Used to read URL parameters
 const currentUrl = window.location.href;
 const currentTime = Date.now();
-let requestHeader;
-let envelopeId;
-let docusignJS;
+let requestHeader, envelopeId, docusignJS;
 
 // Triggered when submit button is clicked
 function submitForm(evt) {
@@ -31,37 +29,74 @@ function submitForm(evt) {
 async function createEnvelope(embeddedBool) {
 
     let c2a = document.getElementById("c2a").checked;
+    let supp = document.getElementById("supp").checked;
+    var templateId = (c2a) ? "6492da53-2958-411f-a863-9737ec86e514" : "b496c58e-8fa4-44be-9948-b7323270624e";
 
-    var templateId = (c2a) ? "d1af5c24-1172-4c5d-8665-aa609d78690e" : "b496c58e-8fa4-44be-9948-b7323270624e";
+    // Read document file and convert to base64 
+    let docPath = "assets/suppdoc.docx";
+    let suppDoc = await fileToBase64(docPath);
+    suppDoc = suppDoc.split(',')[1]; // Remove object type to get just the base64 string
 
     let requestBody =
     {
-        templateId: templateId,
-        templateRoles: [
+        emailSubject: "test",
+        compositeTemplates: [
             {
-                roleName: "Signer",
-                email: document.getElementById("email").value,
-                name: document.getElementById("name").value,
-                // If a clientUserId value is defined, recipient will be embedded
-                ...(embeddedBool && { clientUserId: document.getElementById("email").value }),
-                ...(!c2a && {
-                    tabs: {
-                        textTabs: [
-                            {
-                                tabLabel: "address",
-                                value: document.getElementById("input1").value
-                            }, {
-                                tabLabel: "amount",
-                                value: document.getElementById("input2").value,
-                            }
-                        ]
+                serverTemplates: [
+                    {
+                        sequence: "1",
+                        templateId: templateId
                     }
-                })
+                ],
+                inlineTemplates: [
+                    {
+                        sequence: "1",
+                        recipients: {
+                            signers: [
+                                {
+                                    roleName: "Signer",
+                                    email: document.getElementById("email").value,
+                                    name: document.getElementById("name").value,
+                                    recipientId: "1",
+                                    tabs: {
+                                        textTabs: [
+                                            {
+                                                tabLabel: "address",
+                                                value: document.getElementById("input1").value
+                                            }, {
+                                                tabLabel: "amount",
+                                                value: document.getElementById("input2").value,
+                                            }
+                                        ]
+                                    },
+                                    ...(embeddedBool && { clientUserId: document.getElementById("email").value })
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                ...(supp && {
+                    document: {
+                        documentId: "2",
+                        name: "Supplemental Doc",
+                        fileExtension: "docx",
+                        display: "modal",
+                        documentBase64: suppDoc,
+                    }
+                }),
+                inlineTemplates: [
+                    {
+                        sequence: "1"
+                    }
+                ]
             }
         ],
         useDisclosure: document.getElementById("ersd").checked, // Override ERSD account default
         status: "sent" // Setting status to "sent" will create and send envelope in one step
     }
+
     fetch(
         // Create Envelope Endpoint
         gateway + baseUrl + accountId + "/envelopes",
@@ -141,13 +176,6 @@ function createEmbeddedUrl(responseData) {
         });
 }
 
-function c2aHandler() {
-    let c2a = document.getElementById("c2a");
-
-    document.getElementById("input1").disabled = c2a.checked;
-    document.getElementById("input2").disabled = c2a.checked;
-}
-
 function deliveryHandler(evt) {
 
     let c2a = document.getElementById("c2a");
@@ -157,11 +185,11 @@ function deliveryHandler(evt) {
         c2a.disabled = false;
     } else if (evt == "embedded") {
         document.getElementById('submitText').innerHTML = "Sign Now";
-        if (c2a.checked) { c2a.click() }
+        c2a.checked = false;
         c2a.disabled = true;
     } else if (evt == "remote") {
         document.getElementById('submitText').innerHTML = "Send Agreement for eSignature";
-        if (c2a.checked) { c2a.click() }
+        c2a.checked = false;
         c2a.disabled = true;
     }
 
@@ -169,6 +197,8 @@ function deliveryHandler(evt) {
 }
 
 function initiateFocusedView(signingUrl) {
+
+    let c2a = document.getElementById("c2a").checked;
 
     const signing = docusignJS.signing({
         url: signingUrl,
@@ -179,7 +209,8 @@ function initiateFocusedView(signingUrl) {
                     backgroundColor: '#198754',
                     color: '#FFF',
                 }
-            }
+            },
+            ...(c2a && { signingNavigationButton: { finishText: 'Click to Accept' } })
         }
     });
 
@@ -293,7 +324,21 @@ function loadStatusPage() {
     document.getElementById("envStatus").innerHTML = signerEvent;
 }
 
-// Initialize DocuSign.js\
+async function fileToBase64(url) {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((onSuccess, onError) => {
+        try {
+            const reader = new FileReader();
+            reader.onload = function () { onSuccess(this.result) };
+            reader.readAsDataURL(blob);
+        } catch (e) {
+            onError(e);
+        }
+    });
+};
+
+// Initialize DocuSign.js
 function initDocuSignJS() {
     const apiKey = "2f7ff6b0-e9ac-47cc-b555-2e102fd22254";
 
