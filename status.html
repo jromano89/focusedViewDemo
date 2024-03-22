@@ -10,8 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 
-<!-- Update HTML with data from query parameters -->
-
+<!-- Trigger function to update HTML with data from query parameters -->
 <body class="bg-light d-flex flex-column vh-100" onload="loadStatusPage()">
 
     <!-- Header  -->
@@ -33,7 +32,8 @@
         </div>
 
         <div class="text-center">
-            <h2 class="p-4">Demo Dashboard</h2>
+            <h2 class="p-3">Demo Dashboard</h2>
+            <div class="form-text pt-0 pb-3">Envelope information and status is retrievable via API</div>
         </div>
 
         <div class="row p-2">
@@ -55,13 +55,12 @@
             <div class="col-lg-3"></div>
             <div class="col-5">
                 <select id="docType" class="form-select" required>
-                    <option value="1">Document Only</option>
+                    <option value="combined">Envelope Document(s)</option>
                     <option value="certificate">Certificate of Completion</option>
-                    <option value="combined">Combined Documents</option>
                 </select>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-success" onclick="getPDF()">Get Document</button>
+                <button type="button" class="btn btn-success" onclick="getPDF()">Retrieve Now</button>
             </div>
         </div>
         <div class="row p-4">
@@ -77,36 +76,6 @@
             <div class="modal-content">
                 <!-- Modal body with iFrame -->
                 <div class="modal-body">
-                    <table id="statusTable" class="table table-striped d-none">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">First</th>
-                                <th scope="col">Last</th>
-                                <th scope="col">Handle</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Jacob</td>
-                                <td>Thornton</td>
-                                <td>@fat</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>Larry</td>
-                                <td>the Bird</td>
-                                <td>@twitter</td>
-                            </tr>
-                        </tbody>
-                    </table>
                     <iframe id="myFrame" width="100%" height="500px"></iframe>
                 </div>
                 <!-- Modal footer -->
@@ -142,7 +111,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- JS imports -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>

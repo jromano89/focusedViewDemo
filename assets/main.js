@@ -19,23 +19,26 @@ let requestHeader, envelopeId, docusignJS;
 // Triggered when submit button is clicked
 function submitForm(evt) {
     document.getElementById("submitButton").disabled = true; // Prevent multiple clicks
-    document.getElementById("spinner").classList.remove("d-none");
-    let embeddedBool = !document.getElementById("remote").checked;
-    createEnvelope(embeddedBool);
-    return false; // Prevent default html form submission (run the function above instead)
+    document.getElementById("spinner").classList.remove("d-none"); // Start loading spinner
+    let embedded = !document.getElementById("remote").checked;
+    createEnvelope(embedded);
+    return false; // Prevent default html form submission
 }
 
 // API call for creating a DocuSign envelope
-async function createEnvelope(embeddedBool) {
+async function createEnvelope(embedded) {
 
+    // If c2a is checked, use a template without any signature tags
     let c2a = document.getElementById("c2a").checked;
-    let supp = document.getElementById("supp").checked;
     var templateId = (c2a) ? "6492da53-2958-411f-a863-9737ec86e514" : "b496c58e-8fa4-44be-9948-b7323270624e";
 
-    // Read document file and convert to base64 
-    let docPath = "assets/suppdoc.docx";
-    let suppDoc = await fileToBase64(docPath);
-    suppDoc = suppDoc.split(',')[1]; // Remove object type to get just the base64 string
+    // If supp doc is checked, read document file and convert to base64
+    let supp = document.getElementById("supp").checked;
+    if (supp) {
+        let docPath = "assets/suppdoc.docx";
+        var suppDoc = await fileToBase64(docPath); 
+        suppDoc = suppDoc.split(',')[1]; // Remove object type to get just the base64 string
+    }
 
     let requestBody =
     {
@@ -69,7 +72,8 @@ async function createEnvelope(embeddedBool) {
                                             }
                                         ]
                                     },
-                                    ...(embeddedBool && { clientUserId: document.getElementById("email").value })
+                                    // Specify a clientUserId if embedded signing flag is true
+                                    ...(embedded && { clientUserId: document.getElementById("email").value })
                                 }
                             ]
                         }
@@ -77,6 +81,7 @@ async function createEnvelope(embeddedBool) {
                 ]
             },
             {
+                // Add separate composite template if supp doc is needed
                 ...(supp && {
                     document: {
                         documentId: "2",
@@ -86,6 +91,7 @@ async function createEnvelope(embeddedBool) {
                         documentBase64: suppDoc,
                     }
                 }),
+                // An empty inlineTemplate object is required for the additional composite template
                 inlineTemplates: [
                     {
                         sequence: "1"
@@ -106,7 +112,6 @@ async function createEnvelope(embeddedBool) {
             body: JSON.stringify(requestBody)
         }
     )
-        // Parse response from API
         .then(function (response) {
             if (!response.ok) {
                 return response.text().then(text => { throw new Error(text) })
@@ -116,7 +121,7 @@ async function createEnvelope(embeddedBool) {
         // Trigger next function for embedded, or redirect to status page for remote
         .then(function (data) {
             envelopeId = data.envelopeId;
-            if (embeddedBool) {
+            if (embedded) {
                 createEmbeddedUrl(data);
             } else {
                 let redirectUrl = new URL("status.html", currentUrl).href;
@@ -133,13 +138,13 @@ function createEmbeddedUrl(responseData) {
     let returnUrl = new URL("redirect.html", currentUrl).href; // Used to break out of iframe
 
     let requestBody = {
-        userName: document.getElementById("name").value, // Must all match the previous request
+        userName: document.getElementById("name").value, // Must match the previous request
         email: document.getElementById("email").value,
         roleName: "Signer",
         clientUserId: document.getElementById("email").value,
-        authenticationMethod: "SingleSignOn_SAML", // Purely for CoC
+        authenticationMethod: "SingleSignOn_SAML", // Purely for Certificate of Completion
         returnUrl: returnUrl + "?eid=" + responseData.envelopeId,
-        frameAncestors: ["https://jromano89.github.io", "https://dsdemos.esigndemos.com", "http://127.0.0.1:5500", "https://apps-d.docusign.com"], // Required for focused view
+        frameAncestors: ["https://jromano89.github.io", "https://dsdemos.esigndemos.com", "http://127.0.0.1:5500", "https://apps-d.docusign.com"],
         messageOrigins: ["https://apps-d.docusign.com"] // Required for focused view
     }
     fetch(
@@ -151,7 +156,6 @@ function createEmbeddedUrl(responseData) {
             body: JSON.stringify(requestBody)
         }
     )
-        // Parse response from API
         .then(function (response) {
             if (!response.ok) {
                 return response.text().then(text => { throw new Error(text) })
@@ -161,7 +165,7 @@ function createEmbeddedUrl(responseData) {
         // Load iframe or focused view with embedded signing URL
         .then(function (data) {
             if (document.getElementById("focused").checked) {
-                window.localStorage.setItem("SE-Demo-SigningUrl", data.url);
+                window.localStorage.setItem("SE-Demo-SigningUrl", data.url); // Use local storage to store signing URL
                 let redirectUrl = new URL("embed.html", currentUrl).href;
                 window.top.location.assign(redirectUrl + "?c2a=" + document.getElementById("c2a").checked);
             } else {
@@ -171,13 +175,13 @@ function createEmbeddedUrl(responseData) {
                 document.getElementById("spinner").classList.add("d-none");
                 signingSession.show();
             }
-
         })
         .catch(function (error) {
             alert(error);
         });
 }
 
+// Update UI based on options selected
 function deliveryHandler(evt) {
 
     let c2a = document.getElementById("c2a");
@@ -209,17 +213,16 @@ function getPDF() {
             headers: requestHeader,
         }
     )
-        // could use error handling
         .then(res => res.blob())
         .then(blob => {
             let file = window.URL.createObjectURL(blob);
             document.getElementById("myFrame").setAttribute("src", file);
-            let signingSession = new bootstrap.Modal(document.getElementById('docModal'));
-            signingSession.show();
+            let docModal = new bootstrap.Modal(document.getElementById('docModal'));
+            docModal.show();
         });
 }
 
-// Make API call to get audit events
+// Make API call to get envelope events
 function getStatus() {
     const envId = urlParams.get("eid");
     fetch(
@@ -243,15 +246,17 @@ function getStatus() {
         });
 }
 
-// Create a table based on envelope status
+// Create a table based on envelope events
 function createTable(events) {
-    // Get table body
+
     let tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+
     // Clear existing rows
     while (tableRef.rows.length > 0) {
         tableRef.deleteRow(0);
     }
-    // Loop through data passed to function
+
+    // Loop through events passed to function
     for (let i = 0; i < events.length; i++) {
         // Get relevant eventFields
         let logTime = events[i].eventFields.find(obj => obj.name == 'logTime').value;
@@ -268,8 +273,8 @@ function createTable(events) {
         row.insertCell().innerHTML = EnvelopeStatus;
     }
 
-    let statusModal = new bootstrap.Modal(document.getElementById('eventModal'));
-    statusModal.show();
+    let eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+    eventModal.show();
 }
 
 // Handle iframe redirect to update the parent window
@@ -286,7 +291,7 @@ function restartDemo() {
     window.top.location.assign(startUrl);
 }
 
-// Initialize status page
+// Initialize status page using URL parameters
 function loadStatusPage() {
     const envId = urlParams.get("eid");
     const signerEvent = urlParams.get("event");
@@ -294,6 +299,7 @@ function loadStatusPage() {
     document.getElementById("envStatus").innerHTML = signerEvent;
 }
 
+// Convert local file to base64
 async function fileToBase64(url) {
     const response = await fetch(url);
     const blob = await response.blob();
@@ -322,9 +328,10 @@ function initDocuSignJS() {
         });
 }
 
+// Load signing URL using DocuSign.js
 function initFocusedView() {
 
-    let finishText = ( urlParams.get("c2a") == 'true' ) ? "Click to Accept" : "Finish";
+    let finishText = (urlParams.get("c2a") == 'true') ? "Click to Accept" : "Finish";
     const signingUrl = localStorage.getItem("SE-Demo-SigningUrl");
 
     const signing = docusignJS.signing({
@@ -337,8 +344,8 @@ function initFocusedView() {
                     color: '#FFF',
                 }
             },
-            signingNavigationButton: { 
-                finishText: finishText 
+            signingNavigationButton: {
+                finishText: finishText
             }
         }
     });
@@ -350,5 +357,6 @@ function initFocusedView() {
     });
 
     signing.mount('#agreement');
-
 }
+
+// You made it to the end!

@@ -1,7 +1,7 @@
 // Read cached authentication data from local storage
 let demoAuth = JSON.parse(localStorage.getItem("SE-Demo-" + userId));
 
-// Set defaults if local storage doesn't exist yet
+// Write defaults if local storage doesn't exist yet
 if (!demoAuth) {
     demoAuth = {
         accessToken: "",
@@ -33,19 +33,17 @@ async function getAccessToken() {
 
     if (!response.ok) {
         return response.text().then(text => {
-            // Avoid false alerts when running consent flow
-            if (!currentUrl.includes("consent.html")) { 
-                alert(text);
-            }
+            console.log(text);
+            getConsent(); // Get consent if there's an error
         })
     }
     let responseData = await response.json();
 
     // Update local storage with returned token and expiration
     demoAuth.accessToken = responseData.access_token
-    demoAuth.expiration = Date.now() + 1000 * 60 * 50; // 50 minutes from now 
+    demoAuth.expiration = Date.now() + 1000 * 60 * 45; // 45 minutes from now 
     window.localStorage.setItem("SE-Demo-" + userId, JSON.stringify(demoAuth));
-    
+
     return responseData.access_token;
 }
 
@@ -57,7 +55,7 @@ function buildHeader(token) {
     })
     // Enable submit button now that initialization is complete
     let submitButton = document.getElementById("submitButton");
-    if (submitButton) { submitButton.disabled = false }; // condition check to avoid null errors
+    if (submitButton) { submitButton.disabled = false }; // Condition check to avoid null errors
 }
 
 // Open login URL to get application consent
@@ -66,11 +64,11 @@ async function getConsent() {
     let authParams = new URLSearchParams({
         response_type: "code",
         scope: scopes,
-        client_id: "2f7ff6b0-e9ac-47cc-b555-2e102fd22254", // Do not change
-        state: returnUrl,
-        redirect_uri: "https://sign.agreementsdemo.com/Home/Redirect" // Do not change
+        client_id: "2f7ff6b0-e9ac-47cc-b555-2e102fd22254", // Middleware uses this i-key
+        state: returnUrl, // Actual redirect goes here, and is read by the service below
+        redirect_uri: "https://sign.agreementsdemo.com/Home/Redirect" // This redirect service is added to the i-key
     })
     let codeUrl = authUrl + "auth" + "?" + authParams;
 
-    window.top.location.replace(codeUrl);
+    window.top.location.assign(codeUrl);
 }
