@@ -324,7 +324,7 @@ function initDocuSignJS() {
 
 function initFocusedView() {
 
-    const c2a = urlParams.get("c2a");
+    let finishText = ( urlParams.get("c2a") == 'true' ) ? "Click to Accept" : "Finish";
     const signingUrl = localStorage.getItem("SE-Demo-SigningUrl");
 
     const signing = docusignJS.signing({
@@ -337,11 +337,13 @@ function initFocusedView() {
                     color: '#FFF',
                 }
             },
-            ...(c2a && { signingNavigationButton: { finishText: 'Click to Accept' } })
+            signingNavigationButton: { 
+                finishText: finishText 
+            }
         }
     });
 
-    signing.on('ready', (event) => {});
+    signing.on('ready', (event) => { });
 
     signing.on('sessionEnd', (event) => {
         window.top.location.assign(event.returnUrl);
