@@ -14,7 +14,7 @@ const gateway = "https://cors.jerrod.workers.dev?"; // Append actual endpoint af
 const urlParams = new URLSearchParams(window.location.search); // Used to read URL parameters
 const currentUrl = window.location.href;
 const currentTime = Date.now();
-let requestHeader, envelopeId, docusignJS;
+let requestHeader, docusignJS;
 
 // Triggered when submit button is clicked
 function submitForm(evt) {
@@ -120,7 +120,11 @@ async function createEnvelope(embedded) {
         })
         // Trigger next function for embedded, or redirect to status page for remote
         .then(function (data) {
-            envelopeId = data.envelopeId;
+
+            localStorage.setItem("SE-Demo-EnvelopeId", data.envelopeId);
+            localStorage.setItem("SE-Demo-RecipientName", document.getElementById("name").value);
+            localStorage.setItem("SE-Demo-RecipientEmail", document.getElementById("email").value);
+
             if (embedded) {
                 createEmbeddedUrl(data);
             } else {
@@ -134,7 +138,7 @@ async function createEnvelope(embedded) {
 }
 
 // API call for generating embedded signing view
-function createEmbeddedUrl(responseData) {
+async function createEmbeddedUrl(responseData) {
     let returnUrl = new URL("redirect.html", currentUrl).href; // Used to break out of iframe
 
     let requestBody = {
@@ -147,7 +151,7 @@ function createEmbeddedUrl(responseData) {
         frameAncestors: ["https://jromano89.github.io", "https://dsdemos.esigndemos.com", "http://127.0.0.1:5500", "https://apps-d.docusign.com"],
         messageOrigins: ["https://apps-d.docusign.com"] // Required for focused view
     }
-    fetch(
+    let response = await fetch(
         // Create Recipient View Endpoint
         gateway + baseUrl + accountId + "/envelopes/" + responseData.envelopeId + "/views" + "/recipient",
         {
@@ -165,8 +169,8 @@ function createEmbeddedUrl(responseData) {
         // Load iframe or focused view with embedded signing URL
         .then(function (data) {
             if (document.getElementById("focused").checked) {
-                window.localStorage.setItem("SE-Demo-SigningUrl", data.url); // Use local storage to store signing URL
-                window.localStorage.setItem("SE-Demo-UrlState", "ready");
+                localStorage.setItem("SE-Demo-SigningUrl", data.url); // Use local storage to store signing URL
+                localStorage.setItem("SE-Demo-UrlState", "ready");
                 let redirectUrl = new URL("embed.html", currentUrl).href;
                 window.top.location.assign(redirectUrl + "?c2a=" + document.getElementById("c2a").checked);
             } else {
@@ -180,6 +184,39 @@ function createEmbeddedUrl(responseData) {
         .catch(function (error) {
             alert(error);
         });
+}
+
+async function refreshEmbeddedUrl(envelopeId, recipientName, recipientEmail) {
+
+    let requestBody = {
+        userName: recipientName,
+        email: recipientEmail,
+        roleName: "Signer",
+        clientUserId: recipientEmail,
+        authenticationMethod: "SingleSignOn_SAML", // Purely for Certificate of Completion
+        returnUrl: new URL("redirect.html", currentUrl).href + "?eid=" + envelopeId,
+        frameAncestors: ["https://jromano89.github.io", "https://dsdemos.esigndemos.com", "http://127.0.0.1:5500", "https://apps-d.docusign.com"],
+        messageOrigins: ["https://apps-d.docusign.com"] // Required for focused view
+    }
+    let response = await fetch(
+        // Create Recipient View Endpoint
+        gateway + baseUrl + accountId + "/envelopes/" + envelopeId + "/views" + "/recipient",
+        {
+            method: "POST",
+            headers: requestHeader,
+            body: JSON.stringify(requestBody)
+        }
+    )
+
+    if (!response.ok) {
+        return response.text().then(text => { throw new Error(text) })
+    }
+
+    let responseData = await response.json();
+
+    localStorage.setItem("SE-Demo-SigningUrl", responseData.url); 
+    localStorage.setItem("SE-Demo-UrlState", "ready");
+    return responseData.url;
 }
 
 // Update UI based on options selected
@@ -330,45 +367,47 @@ function initDocuSignJS() {
 }
 
 // Load signing URL using DocuSign.js
-function initFocusedView() {
+async function initFocusedView() {
 
     let finishText = (urlParams.get("c2a") == 'true') ? "Agree" : "Finish";
-    const signingUrl = localStorage.getItem("SE-Demo-SigningUrl");
-    const urlState = localStorage.getItem("SE-Demo-UrlState");
+    let signingUrl = localStorage.getItem("SE-Demo-SigningUrl");
+    let urlState = localStorage.getItem("SE-Demo-UrlState");
 
     if (urlState == "expired") {
 
-        const startUrl = new URL("index.html", currentUrl).href;
-        window.top.location.assign(startUrl);
+        let envelopeId = localStorage.getItem("SE-Demo-EnvelopeId");
+        let recipientName = localStorage.getItem("SE-Demo-RecipientName");
+        let recipientEmail = localStorage.getItem("SE-Demo-RecipientEmail");
 
-    } else {
-
-        const signing = docusignJS.signing({
-            url: signingUrl,
-            displayFormat: 'focused',
-            style: {
-                branding: {
-                    primaryButton: {
-                        backgroundColor: '#198754',
-                        color: '#FFF',
-                    }
-                },
-                signingNavigationButton: {
-                    finishText: finishText
-                }
-            }
-        });
-
-        signing.on('ready', (event) => { });
-
-        signing.on('sessionEnd', (event) => {
-            window.top.location.assign(event.returnUrl);
-        });
-
-        signing.mount('#agreement');
-
-        localStorage.setItem("SE-Demo-UrlState", "expired");
+        signingUrl = await refreshEmbeddedUrl(envelopeId, recipientName, recipientEmail);
     }
+
+    const signing = docusignJS.signing({
+        url: signingUrl,
+        displayFormat: 'focused',
+        style: {
+            branding: {
+                primaryButton: {
+                    backgroundColor: '#198754',
+                    color: '#FFF',
+                }
+            },
+            signingNavigationButton: {
+                finishText: finishText
+            }
+        }
+    });
+
+    signing.on('ready', (event) => { });
+
+    signing.on('sessionEnd', (event) => {
+        window.top.location.assign(event.returnUrl);
+    });
+
+    signing.mount('#agreement');
+
+    localStorage.setItem("SE-Demo-UrlState", "expired");
+
 }
 
 // You made it to the end!
