@@ -36,13 +36,13 @@ async function createEnvelope(embedded) {
     let supp = document.getElementById("supp").checked;
     if (supp) {
         let docPath = "assets/suppdoc.docx";
-        var suppDoc = await fileToBase64(docPath); 
+        var suppDoc = await fileToBase64(docPath);
         suppDoc = suppDoc.split(',')[1]; // Remove object type to get just the base64 string
     }
 
     let requestBody =
     {
-        emailSubject: "test",
+        emailSubject: "Please sign your Agreement",
         compositeTemplates: [
             {
                 serverTemplates: [
@@ -166,6 +166,7 @@ function createEmbeddedUrl(responseData) {
         .then(function (data) {
             if (document.getElementById("focused").checked) {
                 window.localStorage.setItem("SE-Demo-SigningUrl", data.url); // Use local storage to store signing URL
+                window.localStorage.setItem("SE-Demo-UrlState", "ready");
                 let redirectUrl = new URL("embed.html", currentUrl).href;
                 window.top.location.assign(redirectUrl + "?c2a=" + document.getElementById("c2a").checked);
             } else {
@@ -331,32 +332,43 @@ function initDocuSignJS() {
 // Load signing URL using DocuSign.js
 function initFocusedView() {
 
-    let finishText = (urlParams.get("c2a") == 'true') ? "Click to Accept" : "Finish";
+    let finishText = (urlParams.get("c2a") == 'true') ? "Agree" : "Finish";
     const signingUrl = localStorage.getItem("SE-Demo-SigningUrl");
+    const urlState = localStorage.getItem("SE-Demo-UrlState");
 
-    const signing = docusignJS.signing({
-        url: signingUrl,
-        displayFormat: 'focused',
-        style: {
-            branding: {
-                primaryButton: {
-                    backgroundColor: '#198754',
-                    color: '#FFF',
+    if (urlState == "expired") {
+
+        const startUrl = new URL("index.html", currentUrl).href;
+        window.top.location.assign(startUrl);
+
+    } else {
+
+        const signing = docusignJS.signing({
+            url: signingUrl,
+            displayFormat: 'focused',
+            style: {
+                branding: {
+                    primaryButton: {
+                        backgroundColor: '#198754',
+                        color: '#FFF',
+                    }
+                },
+                signingNavigationButton: {
+                    finishText: finishText
                 }
-            },
-            signingNavigationButton: {
-                finishText: finishText
             }
-        }
-    });
+        });
 
-    signing.on('ready', (event) => { });
+        signing.on('ready', (event) => { });
 
-    signing.on('sessionEnd', (event) => {
-        window.top.location.assign(event.returnUrl);
-    });
+        signing.on('sessionEnd', (event) => {
+            window.top.location.assign(event.returnUrl);
+        });
 
-    signing.mount('#agreement');
+        signing.mount('#agreement');
+
+        localStorage.setItem("SE-Demo-UrlState", "expired");
+    }
 }
 
 // You made it to the end!
